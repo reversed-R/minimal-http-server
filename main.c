@@ -153,12 +153,8 @@ void proceed_http(int sock) {
     if (rq.headers != NULL) {
       list_clear(rq.headers, 1);
     }
-    if (rq.entity_body != NULL) {
-      free(rq.entity_body);
-    }
-    if (rq.uri != NULL) {
-      free(rq.uri);
-    }
+    free(rq.entity_body);
+    free(rq.uri);
   }
 
   if (r < 0) {

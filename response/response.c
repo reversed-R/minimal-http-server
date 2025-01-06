@@ -106,6 +106,7 @@ int respond(int sock, response rs, ssize_t body_size) {
   }
 
   printf("<----response\n");
+  fflush(stdout);
 
   list_clear(rs.headers, 1);
 
@@ -149,11 +150,18 @@ int respond_for_GET(int sock, char *uri) {
   }
 
   if (S_ISDIR(st_file.st_mode)) {
-    /* printf("directory\n"); */
     char *index = "index.html";
     strcat(filename, index);
-  } else {
-    /* printf("NOT directory\n"); */
+    if ((st_result = stat(filename, &st_file)) != 0) {
+      if (st_result == ENOENT) {
+        rs.status = NOT_FOUND;
+      } else {
+        rs.status = INTERNAL_SERVER_ERROR;
+      }
+
+      respond(sock, rs, 0);
+      return 1;
+    }
   }
 
   {
