@@ -77,6 +77,7 @@ int respond(int sock, request *rq) {
   write_response(sock, &rs);
 
   list_clear(rs.headers, 1);
+  free(rs.known_headers->content_type->content_type);
   free(rs.entity_body);
 
   return 0;
@@ -123,37 +124,12 @@ int build_response(request *rq, response *rs) {
     }
   }
 
-  {
-    file_size = st_file.st_size;
-    /* printf("file_size:%d\n", file_size); */
-    /* char *size_str = malloc((int)ceil(log10(file_size))); */
-
-    /* char *size_str = malloc(1024); */
-
-    /* printf("file_size pointer:%ld", (long)size_str); */
-    /* itoa(file_size, size_str, DECIMAL); */
-
-    /* sprintf(size_str, "%d", file_size); */
-    /* response_header *content_length_header = malloc(sizeof(response_header));
-     */
-    /* content_length_header->id = HTTP_HEADER_CONTENT_LENGTH; */
-    /* content_length_header->data = size_str; */
-    /* rs->headers = list_new(content_length_header); */
-
-    rs->known_headers->content_length->length = file_size;
-  }
+  /* Content-Length header */
+  rs->known_headers->content_length->length = st_file.st_size;
 
   {
     char *content_type = malloc(1024);
-    /* printf("content_type pointer:%ld\n", (long)content_type); */
     int r = get_mime_type(filename, content_type);
-    /* printf("content_type:%s, r:%d\n", content_type, r); */
-
-    /* response_header *content_type_header = malloc(sizeof(response_header));
-     */
-    /* content_type_header->id = HTTP_HEADER_CONTENT_TYPE; */
-    /* content_type_header->data = content_type; */
-    /* list_append(rs->headers, content_type_header); */
 
     rs->known_headers->content_type->content_type = content_type;
   }
@@ -225,34 +201,26 @@ int write_response(int sock, response *rs) {
   printf("\r\n");
 
   /****entity body****/
-  /* printf("entity_body---->\n%s\n<----entity_body\n", rs.entity_body); */
   if (rs->entity_body != NULL) {
     write(sock, rs->entity_body, body_size);
     write(sock, crlf, strlen(crlf));
-    if (rs->entity_body[body_size - 1] != (uint8_t)'\n') {
-      write(sock, crlf, strlen(crlf));
-    }
+
 #ifdef HTTP_LOG_ROW_ENTITY_BODY
-    /* print */
     ssize_t size = body_size;
     uint8_t *body_pointer = rs->entity_body;
     while (size-- > 0) {
       printf("%c", (char)*(body_pointer++));
     }
 #else
-    printf("[entity body]\n");
+    printf("[entity body]\r\n");
 #endif
-    printf("\r\n");
-    if (rs->entity_body[body_size - 1] != (uint8_t)'\n') {
-      printf("\r\n");
-    }
-    /* print */
   } else {
-#ifndef HTTP_LOG_ROW_ENTITY_BODY
-    printf("[no entity body]\n");
-#endif
     write(sock, crlf, strlen(crlf));
+#ifdef HTTP_LOG_ROW_ENTITY_BODY
     printf("\r\n");
+#else
+    printf("[no entity body]\r\n");
+#endif
   }
 
   printf("<----response\n");
