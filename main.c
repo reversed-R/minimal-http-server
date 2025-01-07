@@ -98,24 +98,6 @@ void main_loop(int accepting_socket) {
   }
 }
 
-/* void http_proceed(int sock) { */
-/*   printf("[pid:%d, fd:%d] ----> \n", getpid(), sock); */
-/**/
-/*   request rq = parse_request(sock); */
-/*   // print_request(rq); */
-/**/
-/*   switch (rq.method) { */
-/*   case HTTP_METHOD_GET: */
-/*     respond_for_GET(sock, rq.uri); */
-/*     break; */
-/*   } */
-/**/
-/*   close(sock); */
-/**/
-/*   printf("<----[pid:%d, fd:%d]\n", getpid(), sock); */
-/*   fflush(stdout); */
-/* } */
-
 void proceed_http(int sock) {
   printf("[pid:%d, fd:%d] ----> \n", getpid(), sock);
 

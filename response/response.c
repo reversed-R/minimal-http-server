@@ -123,6 +123,7 @@ int build_response(request *rq, response *rs) {
   {
     file_size = st_file.st_size;
     /* printf("file_size:%d\n", file_size); */
+    /* char *size_str = malloc((int)ceil(log10(file_size))); */
     char *size_str = malloc(1024);
     /* printf("file_size pointer:%ld", (long)size_str); */
     /* itoa(file_size, size_str, DECIMAL); */
@@ -149,7 +150,6 @@ int build_response(request *rq, response *rs) {
 
   fd = open(filename, O_RDONLY);
   if (fd == -1) {
-    /* respond_status_line(sock, NOT_FOUND); */
     rs->status = HTTP_STATUS_NOT_FOUND;
 
     rs->known_headers->content_length->length = 0;

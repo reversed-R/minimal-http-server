@@ -1,8 +1,8 @@
 #ifndef REQUEST_PARSER_H
 #define REQUEST_PARSER_H
 
+#include "../header/header.h"
 #include "../utils/list/list.h"
-#include "header.h"
 #include <stdint.h>
 
 // enum methods { GET_METHOD = 1, HEAD_METHOD, POST_METHOD };

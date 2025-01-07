@@ -2,7 +2,7 @@ http:
 	gcc response/response.c \
 		request/request_parser.c \
 		request/request_line.c \
-		request/header.c \
+		header/header.c \
 		utils/list/list.c \
 		utils/map/map.c \
 		utils/string/string_manipulator.c \
