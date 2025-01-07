@@ -9,4 +9,6 @@ http:
 		utils/string/string_manipulator.c \
   	utils/mime/mime_checker.c \
   	main.c \
-  	-lmagic -g3 -o deploy/http.out
+  	-lmagic \
+  	-lm \
+  	-g3 -o deploy/http.out

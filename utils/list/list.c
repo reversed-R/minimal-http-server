@@ -37,6 +37,10 @@ void list_append(container *list, void *value) {
 }
 
 void list_clear(container *list, int clear_value) {
+  if (list == NULL) {
+    return;
+  }
+
   container *it = list;
   while (it->next != NULL) {
     container *next = (container *)it->next;

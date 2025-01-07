@@ -4,6 +4,7 @@
 #include "../utils/mime/mime_checker.h"
 #include <errno.h>
 #include <fcntl.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,6 +24,8 @@ char *get_status_text(int status);
 int build_response(request *rq, response *rs);
 
 int write_response(int sock, response *rs);
+
+int write_headers(int sock, response_headers *headers);
 
 response_status rsp_stats[] = {
     {200, "200 OK"},
@@ -124,14 +127,18 @@ int build_response(request *rq, response *rs) {
     file_size = st_file.st_size;
     /* printf("file_size:%d\n", file_size); */
     /* char *size_str = malloc((int)ceil(log10(file_size))); */
-    char *size_str = malloc(1024);
+
+    /* char *size_str = malloc(1024); */
+
     /* printf("file_size pointer:%ld", (long)size_str); */
     /* itoa(file_size, size_str, DECIMAL); */
-    sprintf(size_str, "%d", file_size);
-    response_header *content_length_header = malloc(sizeof(response_header));
-    content_length_header->id = HTTP_HEADER_CONTENT_LENGTH;
-    content_length_header->data = size_str;
-    rs->headers = list_new(content_length_header);
+
+    /* sprintf(size_str, "%d", file_size); */
+    /* response_header *content_length_header = malloc(sizeof(response_header));
+     */
+    /* content_length_header->id = HTTP_HEADER_CONTENT_LENGTH; */
+    /* content_length_header->data = size_str; */
+    /* rs->headers = list_new(content_length_header); */
 
     rs->known_headers->content_length->length = file_size;
   }
@@ -142,10 +149,13 @@ int build_response(request *rq, response *rs) {
     int r = get_mime_type(filename, content_type);
     /* printf("content_type:%s, r:%d\n", content_type, r); */
 
-    response_header *content_type_header = malloc(sizeof(response_header));
-    content_type_header->id = HTTP_HEADER_CONTENT_TYPE;
-    content_type_header->data = content_type;
-    list_append(rs->headers, content_type_header);
+    /* response_header *content_type_header = malloc(sizeof(response_header));
+     */
+    /* content_type_header->id = HTTP_HEADER_CONTENT_TYPE; */
+    /* content_type_header->data = content_type; */
+    /* list_append(rs->headers, content_type_header); */
+
+    rs->known_headers->content_type->content_type = content_type;
   }
 
   fd = open(filename, O_RDONLY);
@@ -183,6 +193,7 @@ int build_response(request *rq, response *rs) {
 int write_response(int sock, response *rs) {
   int body_size = rs->known_headers->content_length->length;
 
+  printf("response---->\n");
   /****status line****/
   char status_line[1024];
   printf("HTTP/%d.%d %s\r\n", rs->version_upper, rs->version_lower,
@@ -193,21 +204,21 @@ int write_response(int sock, response *rs) {
 
   /****headers****/
   container *it = rs->headers;
-  if (it == NULL) {
-    printf("<----response\n");
-    return 1;
-  }
-  while (1) {
-    if (it->value == NULL) {
-      continue;
-    }
-    respond_header(sock, (response_header *)it->value);
+  if (it != NULL) {
+    while (1) {
+      if (it->value == NULL) {
+        continue;
+      }
+      respond_header(sock, (response_header *)it->value);
 
-    if (it->next == NULL) {
-      break;
+      if (it->next == NULL) {
+        break;
+      }
+      it = (container *)it->next;
     }
-    it = (container *)it->next;
   }
+
+  write_headers(sock, rs->known_headers);
 
   char crlf[] = "\r\n";
   write(sock, crlf, strlen(crlf));
@@ -224,7 +235,7 @@ int write_response(int sock, response *rs) {
 #ifdef HTTP_LOG_ROW_ENTITY_BODY
     /* print */
     ssize_t size = body_size;
-    uint8_t *body_pointer = rs.entity_body;
+    uint8_t *body_pointer = rs->entity_body;
     while (size-- > 0) {
       printf("%c", (char)*(body_pointer++));
     }
@@ -249,32 +260,6 @@ int write_response(int sock, response *rs) {
 
   return 0;
 }
-
-/* int respond_for_HEAD(int sock, char *uri) { */
-/*   printf("\nPOST requested, uri = %s\n", uri); */
-/*   response rs; */
-/*   // initialization */
-/*   rs.entity_body = NULL; */
-/*   rs.version_upper = 1; */
-/*   rs.version_lower = 0; */
-/**/
-/*   respond_status_line(sock, OK); */
-/**/
-/*   return 0; */
-/* } */
-/**/
-/* int respond_for_POST(int sock, char *uri) { */
-/*   printf("\nPOST requested, uri = %s\n", uri); */
-/*   response rs; */
-/*   // initialization */
-/*   rs.entity_body = NULL; */
-/*   rs.version_upper = 1; */
-/*   rs.version_lower = 0; */
-/**/
-/*   respond_status_line(sock, OK); */
-/**/
-/*   return 0; */
-/* } */
 
 char *get_status_text(int status) {
   int i = 0;
@@ -326,4 +311,25 @@ void respond_header(int sock, response_header *header) {
 
   write(sock, header_str, strlen(header_str));
   printf("%s: %s\r\n", header_type, header->data);
+}
+
+int write_headers(int sock, response_headers *headers) {
+  char content_length_header_line[strlen("Content-Length: \r\n") +
+                                  (int)ceil(
+                                      log10(headers->content_length->length)) +
+                                  1];
+  sprintf(content_length_header_line, "Content-Length: %d\r\n",
+          headers->content_length->length);
+  write(sock, content_length_header_line, strlen(content_length_header_line));
+  printf("%s", content_length_header_line);
+
+  char content_type_header_line[strlen("Content-Type: \r\n") +
+                                strlen(headers->content_type->content_type) +
+                                1];
+  sprintf(content_type_header_line, "Content-Type: %s\r\n",
+          headers->content_type->content_type);
+  write(sock, content_type_header_line, strlen(content_type_header_line));
+  printf("%s", content_type_header_line);
+
+  return 0;
 }

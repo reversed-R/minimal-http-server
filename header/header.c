@@ -4,8 +4,14 @@
 /* int match_str_in_map(const char *str, map_int_str map[]); */
 
 map_int_str header_types[] = {
-    "Connection",
-    HTTP_HEADER_CONNECTION,
+
+#ifdef HTTP_HEADER_CONNECTION
+    {
+        "Connection",
+        HTTP_HEADER_CONNECTION,
+    },
+#endif
+
 };
 
 /* int match_str_in_map(const char *str, map_int_str map[]) { */
