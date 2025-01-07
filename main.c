@@ -144,11 +144,14 @@ void proceed_http(int sock) {
     headers.content_length->length = 0;
 
     printf("read_request returns %d\n", r);
-    switch (rq.method) {
-    case HTTP_METHOD_GET:
-      respond_for_GET(sock, rq.uri);
-      break;
-    }
+
+    respond(sock, &rq);
+
+    /* switch (rq.method) { */
+    /* case HTTP_METHOD_GET: */
+    /*   respond_for_GET(sock, rq.uri); */
+    /*   break; */
+    /* } */
 
     if (rq.headers != NULL) {
       list_clear(rq.headers, 1);

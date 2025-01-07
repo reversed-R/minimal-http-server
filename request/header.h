@@ -13,6 +13,7 @@
 #define HTTP_HEADER_CONNECTION 0
 #define HTTP_HEADER_KEEP_ALIVE 1
 #define HTTP_HEADER_CONTENT_LENGTH 2
+#define HTTP_HEADER_CONTENT_TYPE 3
 // #define HTTP_HEADER_CONTENT_TYPE 3
 // #define HTTP_HEADER_HOST 4
 // #define HTTP_HEADER_USER_AGENT 5
@@ -42,6 +43,10 @@ typedef struct {
 typedef struct {
   int length;
 } content_length_h;
+
+typedef struct {
+  char *content_type;
+} content_type_h;
 
 typedef struct {
   connection_h *connection;

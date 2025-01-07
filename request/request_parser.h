@@ -1,3 +1,6 @@
+#ifndef REQUEST_PARSER_H
+#define REQUEST_PARSER_H
+
 #include "../utils/list/list.h"
 #include "header.h"
 #include <stdint.h>
@@ -33,3 +36,5 @@ void print_request(request rq);
 
 int read_request(int sock, char *buf, int bufsize, int *head_index,
                  request *rq);
+
+#endif
