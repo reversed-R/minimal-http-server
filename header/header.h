@@ -1,13 +1,7 @@
 #ifndef HEADER_H
 #define HEADER_H
-// enum request_headers {
-//   AUTHORIZATION = 0,
-//   FROM,
-//   IF_MODIFIED_SINCE,
-//   REFERER,
-//   USER_AGENT,
-//   CONNECTION
-// };
+
+#include "header_parser.h"
 
 // HTTP Header
 #define HTTP_HEADER_CONNECTION 0
@@ -52,9 +46,6 @@ typedef struct {
   connection_h *connection;
   content_length_h *content_length;
 } Headers;
-
-int parse_header_line(const char *header_line, char *header_type,
-                      char *params_str);
 
 int match_header(const char *header_type);
 

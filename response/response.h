@@ -1,6 +1,7 @@
 #include "../header/header.h"
 #include "../request/request_parser.h"
 #include "../utils/list/list.h"
+#include "status.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -10,11 +11,6 @@ typedef struct {
   int status;
   char *status_text;
 } response_status;
-
-#define HTTP_STATUS_OK 200
-#define HTTP_STATUS_NOT_FOUND 404
-#define HTTP_STATUS_BAD_REQUEST 400
-#define HTTP_STATUS_INTERNAL_SERVER_ERROR 500
 
 typedef struct {
   int id;

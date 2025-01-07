@@ -19,7 +19,6 @@ void tcp_peeraddr_print(int com);
 void sockaddr_print(struct sockaddr *addrp, int addr_len);
 int open_accepting_socket(int port);
 void main_loop(int accepting_socket);
-/* void http_proceed(int sock); */
 void proceed_http(int sock);
 void delete_zombie(void);
 
@@ -128,12 +127,6 @@ void proceed_http(int sock) {
     printf("read_request returns %d\n", r);
 
     respond(sock, &rq);
-
-    /* switch (rq.method) { */
-    /* case HTTP_METHOD_GET: */
-    /*   respond_for_GET(sock, rq.uri); */
-    /*   break; */
-    /* } */
 
     if (rq.headers != NULL) {
       list_clear(rq.headers, 1);
